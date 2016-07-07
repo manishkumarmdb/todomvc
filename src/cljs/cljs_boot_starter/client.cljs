@@ -26,9 +26,9 @@
 ;; filter completed todos thats value is true
 (defn todos-completed [todos-temp]
   (let [todos-all (todos-all todos-temp)]
-    (filter :completed todos-all)))
+    (filter #(= true (:completed %)) todos-all)))
 
-;; return true if count of todos vals equals count of completed todos
+;; return boolean true if count of todos vals equals count of completed todos
 (defn todos-all-completed? [todos-temp]
   (= (count (todos-all todos-temp))
      (count (todos-completed todos-temp))))
@@ -104,13 +104,11 @@
 
 ;;
 (defn show-active-todos [todos-temp]
-  (doseq [todo (todos-active todos-temp)]
-    (todos-show)))
+  (todos-active todos-temp))
 
 ;;
 (defn show-completed-todos [todos-temp]
-  (doseq [todo (todos-completed todos-temp)]
-    (todos-show)))
+  (todos-completed todos-temp))
 
 ;;
 (defn delete-all-completed-todos [todos-temp]
@@ -121,7 +119,7 @@
 (defn todos-footer []
   [:div
    [:span
-    [:strong (count (todos-active @todos))]
+    [:bold (count (todos-active @todos))]
     (todos-left @todos)]
    [:span
     [:input {:type "button"
