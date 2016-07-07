@@ -104,11 +104,11 @@
 
 ;;
 (defn show-active-todos [todos-temp]
-  (todos-active todos-temp))
+  (map (filter #(not (:completed %)) (todos-all todos-temp))))
 
 ;;
 (defn show-completed-todos [todos-temp]
-  (todos-completed todos-temp))
+  (map (filter #(= true (:completed %)) (todos-all todos-temp))))
 
 ;;
 (defn delete-all-completed-todos [todos-temp]
