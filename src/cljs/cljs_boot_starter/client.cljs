@@ -73,8 +73,16 @@
 (defn todo-delete [id]
   (swap! todos dissoc id))
 
+;; this function takes a footer button type and filter it
+(defn show-todos [visible-type]
+  (case @visible-type
+    "all" (vals @todos)
+    "active" (filter #(not (:completed %)) (vals @todos))
+    "completed" (filter #(= true (:completed %)) (vals @todos))))
+
+
 ;; displaying todos start with checkbox and todo & end with delete button
-(defn todos-show []
+(defn todos-show [visible-type]
   [:div
    [:table
     [:thead
@@ -83,7 +91,7 @@
               :on-change #(todos-all-update (todos-all-completed? @todos))}]
      ;;[:tr [:td "active"] [:td "todos"] [:td "action"]]
      ]
-    (for [todo-get (todos-all @todos)]
+    (for [todo-get (show-todos visible-type)]
       ^{:key (:id todo-get)}
       [:tr
        [:td
@@ -102,21 +110,8 @@
     (str (if (<= 1 todos-count) " item " " items ")
          "left ")))
 
-;;
-(defn show-active-todos [todos-temp]
-  (map (filter #(not (:completed %)) (todos-all todos-temp))))
-
-;;
-(defn show-completed-todos [todos-temp]
-  (map (filter #(= true (:completed %)) (todos-all todos-temp))))
-
-;;
-(defn delete-all-completed-todos [todos-temp]
-  (doseq [todo (todos-completed todos-temp)]
-    (todo-delete (:id todo))))
-
 ;; this is footer part of application which dispaly todos state
-(defn todos-footer []
+(defn todos-footer [visible-type]
   [:div
    [:span
     [:bold (count (todos-active @todos))]
@@ -124,31 +119,33 @@
    [:span
     [:input {:type "button"
              :value "all"
-             :on-click #(todos-show)}]] " "
+             :on-click #(reset! visible-type "all")}]] " "
    [:span
     [:input {:type "button"
              :value "active"
-             :on-click #(show-active-todos @todos)}]] " "
+             :on-click #(reset! visible-type "active")}]] " "
    [:span
     [:input {:type "button"
              :value "completed"
-             :on-click #(show-completed-todos @todos)}]] " "
+             :on-click #(reset! visible-type "completed") }]] " "
    [:span
     [:input {:type "button"
              :value "clear-completed"
-             :on-click #(delete-all-completed-todos @todos)}]]])
+             :on-click #(reset! visible-type "clear-completed")}]]])
 
 ;; this is main application part
 (defn todomvc []
-  (let []
+  (let [visible-data (reagent/atom {})
+        visible-type (reagent/atom "all")]
     (fn []
       (let [text (reagent/atom "")]
         [:div
          [:div
           [header]
           [todo-input text]]
-         [todos-show]
-         [todos-footer]
+         [todos-show  visible-type]
+         [todos-footer visible-type]
+         [:p (str @todos)]
          ]))))
 
 (defn init []
