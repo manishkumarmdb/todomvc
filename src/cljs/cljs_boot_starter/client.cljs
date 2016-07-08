@@ -63,22 +63,33 @@
 
 ;; define seperate checkbox element for displaying with every todo with todo
 (defn todo-checkbox [id]
-  [:input.toggle {:type "checkbox"
-                  ;;:checked completed
-                  :on-change #(do
-                                (todo-update id)
-                                (js/console.log (str "id : " id)))}])
+  (let [check-val (reagent/atom (get-in @todos [id :completed]))]
+    [:input {:type "checkbox"
+             :on-change #(do
+                           (reset! check-val (not (get-in @todos [id :completed])))
+                           (todo-update id)
+                           (js/console.log (str "id : " id))
+                           (js/console.log @check-val))
+             :checked @check-val}]))
 
 ;; delete todo by id
 (defn todo-delete [id]
   (swap! todos dissoc id))
+
+;; delete all completed @todos
+(defn delete-all-completed-todos [todos-temp]
+  (doseq [todo (todos-completed todos-temp)]
+    (todo-delete (:id todo))))
 
 ;; this function takes a footer button type and filter it
 (defn show-todos [visible-type]
   (case @visible-type
     "all" (vals @todos)
     "active" (filter #(not (:completed %)) (vals @todos))
-    "completed" (filter #(= true (:completed %)) (vals @todos))))
+    "completed" (filter #(= true (:completed %)) (vals @todos))
+    "clear-completed" (do
+                        (delete-all-completed-todos @todos)
+                        (vals @todos))))
 
 
 ;; displaying todos start with checkbox and todo & end with delete button
@@ -109,6 +120,8 @@
   (let [todos-count (count (todos-active todos-temp))]
     (str (if (<= 1 todos-count) " item " " items ")
          "left ")))
+
+
 
 ;; this is footer part of application which dispaly todos state
 (defn todos-footer [visible-type]
@@ -144,6 +157,7 @@
           [header]
           [todo-input text]]
          [todos-show  visible-type]
+         [:BR]
          [todos-footer visible-type]
          [:p (str @todos)]
          ]))))
