@@ -96,24 +96,24 @@
 (defn todos-show [visible-type]
   [:div
    [:table
-    [:thead
-     [:input {:type "checkbox"
-              :checked (todos-all-completed? @todos)
-              :on-change #(todos-all-update (todos-all-completed? @todos))}]
-     ;;[:tr [:td "active"] [:td "todos"] [:td "action"]]
-     ]
-    (for [todo-get (show-todos visible-type)]
-      ^{:key (:id todo-get)}
-      [:tr
-       [:td
-        [todo-checkbox (:id todo-get)]]
-       [:td
-        (:todo todo-get)]
-       [:td
-        [:input {:type "button"
-                 :value "X"
-                 :on-click #(todo-delete (:id todo-get))
-                 }]]])]])
+    [:thead>tr
+     [:th
+      [:input {:type "checkbox"
+               :checked (todos-all-completed? @todos)
+               :on-change #(todos-all-update (todos-all-completed? @todos))}]]]
+    [:tbody
+     (for [todo-get (show-todos visible-type)]
+       ^{:key (:id todo-get)}
+       [:tr
+        [:td
+         [todo-checkbox (:id todo-get)]]
+        [:td
+         (:todo todo-get)]
+        [:td
+         [:input {:type "button"
+                  :value "X"
+                  :on-click #(todo-delete (:id todo-get))
+                  }]]])]]])
 
 ;; dispaly only item or items which calculate on todos count
 (defn todos-left [todos-temp]
@@ -146,7 +146,7 @@
              :value "clear-completed"
              :on-click #(reset! visible-type "clear-completed")}]]])
 
-;; this is main application part
+;; this is main application entry point
 (defn todomvc []
   (let [visible-data (reagent/atom {})
         visible-type (reagent/atom "all")]
